@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Insert script to tab bar</title>
+    <script src="../js/jquery331.js"></script>
+</head>
+<body>
+    <h1>可插入脚本</h1>
+    <ul id="fileList">
+        
+    </ul>
+    
+    <script>
+        function basename(str) {
+            var idx = str.lastIndexOf('/')
+            idx = idx > -1 ? idx : str.lastIndexOf('\\')
+            if (idx < 0) {
+                return str
+            }
+            return str.substring(idx + 1);
+        }
+
+        // 获取文件后缀 如 readme.md 返回 .md
+        function suffix(str){
+            var result = str.match(/\..*$/)
+            if(result){
+                return result[0]
+            }
+        }
+
+        
+
+        $(document).ready(function () {
+            $.get("/name?pwd=script", function (data, status) {
+                console.log(data)
+                var fileList = $('#fileList')
+
+                for(var index in data){
+                    // 筛选出后缀为 .js 的文件
+                    if(suffix(data[index]) !== '.js'){
+                        continue
+                    }
+
+                    var fileName = data[index]
+                    // 获取文件中的内容
+                    $.get("/script/"+fileName, function(data, status){
+                        // 统计参数的数量
+                        console.log(arguments.length)
+
+                        // 这里其实实现了脚本的异步加载
+                        // 构建链接
+                        var theLinkToFile = $("<a></a>")
+                        theLinkToFile.attr("href", "javascript:(function(){"+
+                            data + "}())")
+                        theLinkToFile.append("<li>"+fileName+"</li>")
+                        fileList.append(theLinkToFile)
+                        fileList.append("<br>")
+                    })
+                }
+            })
+        })
+    </script>
+</body>
+</html>
