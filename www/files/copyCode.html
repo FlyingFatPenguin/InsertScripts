@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Copy Code</title>
+    <script src="../js/jquery331.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/copyCode.css" />
+</head>
+
+<body>
+    <h1>选择复制脚本</h1>
+    <button onclick="copy('url1')">复制脚本</button>
+    <ul id="fileList">
+
+    </ul>
+    <br>
+    <!-- <pre id='showText' type="text" value="123"></pre> -->
+    <textarea type="text" value="www.xxx.com" id="url1" ></textarea>
+    <!-- <input type="button" onClick="copy('url1')" value="点击复制代码" /> -->
+    <script>
+        // 获取文件后缀 如 readme.md 返回 .md
+        function suffix(str) {
+            var result = str.match(/\..*$/)
+            if (result) {
+                return result[0]
+            }
+        }
+
+        // 复制
+        function copy(id) {
+            var Url = document.getElementById(id);
+            Url.select();
+            try {
+                //进行复制到剪切板
+                if (document.execCommand("Copy")) {
+                    //如果复制成功
+                    alert("复制成功！");
+                } else {
+                    //如果复制失败
+                    alert("复制失败！");
+                }
+            } catch (err) {
+                //如果报错
+                alert("复制错误！")
+            }
+        }
+
+
+        // 显示代码
+        function showCode(fileName) {
+            var showTest = $('#showText')
+            var inputBox = $('#url1')
+            // fileName = encodeURIComponent(fileName)
+            $.get("/script/" + fileName, function (data, status) {
+                showTest.empty();
+                showTest.append(data);
+                inputBox.val(data);
+            })
+        }
+
+
+        $(document).ready(function () {
+
+
+            $.get("/name?pwd=script", function (data, status) {
+                console.log(data)
+                var fileList = $('#fileList')
+
+                for (var index in data) {
+                    // 筛选出后缀为 .js 的文件
+                    if (suffix(data[index]) !== '.py') {
+                        continue
+                    }
+
+                    var fileName = data[index]
+
+                    var theLinkToFile = $("<button></button>")
+                    theLinkToFile.attr("onclick", "javascript:showCode('" +
+                        fileName + "')")
+                    theLinkToFile.append("<li>" + fileName + "</li>")
+                    fileList.append(theLinkToFile)
+                    fileList.append("<br>")
+
+                }
+                // $('li').onclick(function () {
+                //     showCode();
+                // })
+            })
+
+
+
+        })
+    </script>
+</body>
+
+</html>
